@@ -24,6 +24,11 @@ public class Film3D extends Film {
     }
 
     @Override
+    public String getFasilitas() {
+        return "Layar 3D, kacamata 3D disediakan";
+    }
+
+    @Override
     public double hitungHargaTiket() {
         return super.hitungHargaTiket() + biayaKacamata;
     }

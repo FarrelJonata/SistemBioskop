@@ -24,6 +24,11 @@ public class FilmReguler extends Film {
     }
 
     @Override
+    public String getFasilitas() {
+        return "Layar standar di Studio " + nomorStudio;
+    }
+
+    @Override
     public double hitungHargaTiket() {
         return super.hitungHargaTiket();
     }

@@ -34,6 +34,11 @@ public class FilmIMAX extends Film {
     }
 
     @Override
+    public String getFasilitas() {
+        return "Layar IMAX " + ukuranLayar + ", audio premium";
+    }
+
+    @Override
     public double hitungHargaTiket() {
         return super.hitungHargaTiket() + biayaPremium;
     }

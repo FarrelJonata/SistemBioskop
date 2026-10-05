@@ -63,8 +63,16 @@ public class Film {
         return "Film";
     }
 
+    public String getFasilitas() {
+        return "Layar standar";
+    }
+
     public double hitungHargaTiket() {
         return hargaDasar;
+    }
+
+    public double hitungHargaTiket(int jumlah) {
+        return this.hitungHargaTiket() * jumlah;
     }
 
     public void tampilkanInfo() {
