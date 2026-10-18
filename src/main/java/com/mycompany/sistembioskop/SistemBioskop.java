@@ -17,7 +17,7 @@ public class SistemBioskop {
 
         do {
             tampilkanMenu();
-            pilihan = bacaInt("Pilih menu [1-6]: ");
+            pilihan = bacaInt("Pilih menu [1-7]: ");
 
             switch (pilihan) {
                 case 1:
@@ -36,12 +36,15 @@ public class SistemBioskop {
                     simulasiPemutaran();
                     break;
                 case 6:
+                    layananFilm();
+                    break;
+                case 7:
                     System.out.println("\nTerima kasih telah menggunakan Sistem Bioskop!");
                     break;
                 default:
                     System.out.println("Pilihan tidak valid, coba lagi.");
             }
-        } while (pilihan != 6);
+        } while (pilihan != 7);
     }
 
     static void tampilkanMenu() {
@@ -53,7 +56,8 @@ public class SistemBioskop {
         System.out.println(" 3. Cari Film");
         System.out.println(" 4. Beli Tiket");
         System.out.println(" 5. Simulasi Pemutaran Film");
-        System.out.println(" 6. Keluar");
+        System.out.println(" 6. Layanan Film (Kursi dan Rating)");
+        System.out.println(" 7. Keluar");
         System.out.println("------------------------------------------");
         System.out.println(" Total film     : " + Film.getTotalFilm());
         System.out.println(" Tiket terjual  : " + totalTiketTerjual);
@@ -256,10 +260,12 @@ public class SistemBioskop {
             System.out.println("\nBelum ada film terdaftar.");
             return;
         }
-        System.out.println("\n--- Simulasi Pemutaran Film (Dynamic Binding) ---");
+        System.out.println("\n--- Simulasi Pemutaran Film (Abstract Method dan Interface) ---");
         System.out.println("Semua film disimpan di array bertipe Film, perilakunya ditentukan saat runtime.\n");
         for (int i = 0; i < jumlah; i++) {
             simulasiPutar(daftar[i]);
+            cekLayanan(daftar[i]);
+            System.out.println("-------------------------------------------");
         }
     }
 
@@ -268,7 +274,73 @@ public class SistemBioskop {
         System.out.printf("Tipe objek   : %s%n", film.getClass().getSimpleName());
         System.out.printf("Fasilitas    : %s%n", film.getFasilitas());
         System.out.printf("Harga tiket  : %s%n", Film.formatRupiah(film.hitungHargaTiket()));
-        System.out.println("-------------------------------------------");
+        film.tampilkanAturanTayang();
+    }
+
+    static void cekLayanan(Film film) {
+        prosesReservasi(film, "A1");
+        prosesRating(film, 5);
+    }
+
+    static void prosesReservasi(Film film, String nomorKursi) {
+        if (film instanceof DapatDipesan) {
+            DapatDipesan layanan = (DapatDipesan) film;
+            layanan.pesanKursi(nomorKursi);
+        } else {
+            System.out.println("-> [RESERVASI] " + film.getJudul() + " (" + film.getJenis()
+                    + ") tidak mendukung reservasi kursi, kursi bebas.");
+        }
+    }
+
+    static void prosesRating(Film film, int bintang) {
+        if (film instanceof DapatDinilai) {
+            if (bintang < 1 || bintang > 5) {
+                System.out.println("-> [RATING] Rating harus antara 1 - 5 bintang.");
+                return;
+            }
+            DapatDinilai layanan = (DapatDinilai) film;
+            layanan.beriRating(bintang);
+        } else {
+            System.out.println("-> [RATING] " + film.getJudul() + " (" + film.getJenis()
+                    + ") tidak menerima rating penonton.");
+        }
+    }
+
+    static void layananFilm() {
+        if (jumlah == 0) {
+            System.out.println("\nBelum ada film terdaftar.");
+            return;
+        }
+        tampilkanSemua();
+        int nomor = bacaInt("\nPilih nomor film: ");
+
+        if (nomor < 1 || nomor > jumlah) {
+            System.out.println("Nomor film tidak valid.");
+            return;
+        }
+
+        Film film = daftar[nomor - 1];
+        System.out.println("\nLayanan untuk: " + film.getJudul() + " [" + film.getJenis() + "]");
+        System.out.println(" 1. Pesan kursi");
+        System.out.println(" 2. Beri rating");
+        System.out.println(" 3. Lihat aturan tayang");
+        int layanan = bacaInt("Pilih [1-3]: ");
+
+        switch (layanan) {
+            case 1:
+                String kursi = bacaTeks("Nomor kursi yang diinginkan (contoh A5): ");
+                prosesReservasi(film, kursi);
+                break;
+            case 2:
+                int bintang = bacaInt("Rating (1-5 bintang): ");
+                prosesRating(film, bintang);
+                break;
+            case 3:
+                film.tampilkanAturanTayang();
+                break;
+            default:
+                System.out.println("Pilihan tidak valid.");
+        }
     }
 
     static void isiDataAwal() {

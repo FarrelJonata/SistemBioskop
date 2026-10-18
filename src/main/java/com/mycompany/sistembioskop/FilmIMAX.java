@@ -1,6 +1,6 @@
 package com.mycompany.sistembioskop;
 
-public class FilmIMAX extends Film {
+public class FilmIMAX extends Film implements DapatDipesan, DapatDinilai {
     private double biayaPremium;
     private String ukuranLayar;
 
@@ -36,6 +36,21 @@ public class FilmIMAX extends Film {
     @Override
     public String getFasilitas() {
         return "Layar IMAX " + ukuranLayar + ", audio premium";
+    }
+
+    @Override
+    public void tampilkanAturanTayang() {
+        System.out.println("-> [ATURAN TAYANG] Tiket IMAX tidak dapat ditukar, penonton hadir 15 menit sebelum film mulai.");
+    }
+
+    @Override
+    public void pesanKursi(String nomorKursi) {
+        System.out.println("-> [RESERVASI] Kursi " + nomorKursi + " di layar IMAX " + ukuranLayar + " berhasil dipesan.");
+    }
+
+    @Override
+    public void beriRating(int bintang) {
+        System.out.println("-> [RATING] Film IMAX \"" + getJudul() + "\" mendapat rating " + bintang + "/5 bintang.");
     }
 
     @Override

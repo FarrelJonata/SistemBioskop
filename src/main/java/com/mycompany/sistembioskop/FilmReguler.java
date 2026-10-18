@@ -1,6 +1,6 @@
 package com.mycompany.sistembioskop;
 
-public class FilmReguler extends Film {
+public class FilmReguler extends Film implements DapatDinilai {
     private int nomorStudio;
 
     public FilmReguler(String judul, String genre, int durasiMenit,
@@ -26,6 +26,16 @@ public class FilmReguler extends Film {
     @Override
     public String getFasilitas() {
         return "Layar standar di Studio " + nomorStudio;
+    }
+
+    @Override
+    public void tampilkanAturanTayang() {
+        System.out.println("-> [ATURAN TAYANG] Tiket berlaku untuk Studio " + nomorStudio + ", kursi bebas (siapa cepat dia dapat).");
+    }
+
+    @Override
+    public void beriRating(int bintang) {
+        System.out.println("-> [RATING] Film reguler \"" + getJudul() + "\" mendapat rating " + bintang + "/5 bintang.");
     }
 
     @Override

@@ -1,6 +1,6 @@
 package com.mycompany.sistembioskop;
 
-public class Film {
+public abstract class Film {
 
     private String judul;
     private String genre;
@@ -66,6 +66,8 @@ public class Film {
     public String getFasilitas() {
         return "Layar standar";
     }
+
+    public abstract void tampilkanAturanTayang();
 
     public double hitungHargaTiket() {
         return hargaDasar;

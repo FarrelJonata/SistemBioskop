@@ -1,6 +1,6 @@
 package com.mycompany.sistembioskop;
 
-public class Film3D extends Film {
+public class Film3D extends Film implements DapatDipesan, DapatDinilai {
     private double biayaKacamata;
 
     public Film3D(String judul, String genre, int durasiMenit,
@@ -26,6 +26,21 @@ public class Film3D extends Film {
     @Override
     public String getFasilitas() {
         return "Layar 3D, kacamata 3D disediakan";
+    }
+
+    @Override
+    public void tampilkanAturanTayang() {
+        System.out.println("-> [ATURAN TAYANG] Wajib memakai kacamata 3D selama pemutaran, kacamata dikembalikan setelah film selesai.");
+    }
+
+    @Override
+    public void pesanKursi(String nomorKursi) {
+        System.out.println("-> [RESERVASI] Kursi " + nomorKursi + " untuk film 3D \"" + getJudul() + "\" berhasil dipesan, kacamata 3D disiapkan.");
+    }
+
+    @Override
+    public void beriRating(int bintang) {
+        System.out.println("-> [RATING] Film 3D \"" + getJudul() + "\" mendapat rating " + bintang + "/5 bintang.");
     }
 
     @Override

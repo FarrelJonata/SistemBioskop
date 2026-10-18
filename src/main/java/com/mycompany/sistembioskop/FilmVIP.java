@@ -1,6 +1,6 @@
 package com.mycompany.sistembioskop;
 
-public class FilmVIP extends Film {
+public class FilmVIP extends Film implements DapatDipesan {
     private double biayaLayanan;
     private String jenisKursi;
 
@@ -36,6 +36,16 @@ public class FilmVIP extends Film {
     @Override
     public String getFasilitas() {
         return "Kursi " + jenisKursi + ", gratis snack dan minuman";
+    }
+
+    @Override
+    public void tampilkanAturanTayang() {
+        System.out.println("-> [ATURAN TAYANG] Kursi " + jenisKursi + ", masuk lewat lounge VIP, snack dan minuman gratis.");
+    }
+
+    @Override
+    public void pesanKursi(String nomorKursi) {
+        System.out.println("-> [RESERVASI] Kursi VIP " + jenisKursi + " nomor " + nomorKursi + " berhasil dipesan, pelayan akan mengantar snack.");
     }
 
     @Override
