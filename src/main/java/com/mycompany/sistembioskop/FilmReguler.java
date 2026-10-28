@@ -4,16 +4,16 @@ public class FilmReguler extends Film implements DapatDinilai {
     private int nomorStudio;
 
     public FilmReguler(String judul, String genre, int durasiMenit,
-                       double hargaDasar, int nomorStudio) {
+                       double hargaDasar, int nomorStudio) throws DataTidakValidException {
         super(judul, genre, durasiMenit, hargaDasar);
         this.setNomorStudio(nomorStudio);
     }
 
     public int getNomorStudio() { return nomorStudio; }
 
-    public void setNomorStudio(int nomorStudio) {
+    public void setNomorStudio(int nomorStudio) throws DataTidakValidException {
         if (nomorStudio < 1 || nomorStudio > 10) {
-            throw new IllegalArgumentException("Nomor studio harus antara 1 - 10.");
+            throw new DataTidakValidException("Nomor studio harus antara 1 - 10.");
         }
         this.nomorStudio = nomorStudio;
     }

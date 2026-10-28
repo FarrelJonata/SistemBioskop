@@ -9,7 +9,7 @@ public abstract class Film {
 
     private static int totalFilm = 0;
 
-    public Film(String judul, String genre, int durasiMenit, double hargaDasar) {
+    public Film(String judul, String genre, int durasiMenit, double hargaDasar) throws DataTidakValidException {
         this.setJudul(judul);
         this.setGenre(genre);
         this.setDurasiMenit(durasiMenit);
@@ -17,7 +17,7 @@ public abstract class Film {
         totalFilm++;
     }
 
-    public Film(String judul) {
+    public Film(String judul) throws DataTidakValidException {
         this(judul, "Umum", 90, 35000);
     }
 
@@ -27,30 +27,30 @@ public abstract class Film {
     public double getHargaDasar() { return hargaDasar; }
     public static int getTotalFilm() { return totalFilm; }
 
-    public void setJudul(String judul) {
+    public void setJudul(String judul) throws DataTidakValidException {
         if (judul == null || judul.trim().isEmpty()) {
-            throw new IllegalArgumentException("Judul film tidak boleh kosong.");
+            throw new DataTidakValidException("Judul film tidak boleh kosong.");
         }
         this.judul = judul.trim();
     }
 
-    public void setGenre(String genre) {
+    public void setGenre(String genre) throws DataTidakValidException {
         if (genre == null || genre.trim().isEmpty()) {
-            throw new IllegalArgumentException("Genre tidak boleh kosong.");
+            throw new DataTidakValidException("Genre tidak boleh kosong.");
         }
         this.genre = genre.trim();
     }
 
-    public void setDurasiMenit(int durasiMenit) {
+    public void setDurasiMenit(int durasiMenit) throws DataTidakValidException {
         if (durasiMenit < 1 || durasiMenit > 600) {
-            throw new IllegalArgumentException("Durasi harus antara 1 - 600 menit.");
+            throw new DataTidakValidException("Durasi harus antara 1 - 600 menit.");
         }
         this.durasiMenit = durasiMenit;
     }
 
-    public void setHargaDasar(double hargaDasar) {
+    public void setHargaDasar(double hargaDasar) throws DataTidakValidException {
         if (hargaDasar < 0) {
-            throw new IllegalArgumentException("Harga dasar tidak boleh negatif.");
+            throw new DataTidakValidException("Harga dasar tidak boleh negatif.");
         }
         this.hargaDasar = hargaDasar;
     }

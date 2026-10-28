@@ -5,7 +5,7 @@ public class FilmIMAX extends Film implements DapatDipesan, DapatDinilai {
     private String ukuranLayar;
 
     public FilmIMAX(String judul, String genre, int durasiMenit,
-                    double hargaDasar, double biayaPremium, String ukuranLayar) {
+                    double hargaDasar, double biayaPremium, String ukuranLayar) throws DataTidakValidException {
         super(judul, genre, durasiMenit, hargaDasar);
         this.setBiayaPremium(biayaPremium);
         this.setUkuranLayar(ukuranLayar);
@@ -14,16 +14,16 @@ public class FilmIMAX extends Film implements DapatDipesan, DapatDinilai {
     public double getBiayaPremium() { return biayaPremium; }
     public String getUkuranLayar() { return ukuranLayar; }
 
-    public void setBiayaPremium(double biayaPremium) {
+    public void setBiayaPremium(double biayaPremium) throws DataTidakValidException {
         if (biayaPremium < 0) {
-            throw new IllegalArgumentException("Biaya premium tidak boleh negatif.");
+            throw new DataTidakValidException("Biaya premium tidak boleh negatif.");
         }
         this.biayaPremium = biayaPremium;
     }
 
-    public void setUkuranLayar(String ukuranLayar) {
+    public void setUkuranLayar(String ukuranLayar) throws DataTidakValidException {
         if (ukuranLayar == null || ukuranLayar.trim().isEmpty()) {
-            throw new IllegalArgumentException("Ukuran layar tidak boleh kosong.");
+            throw new DataTidakValidException("Ukuran layar tidak boleh kosong.");
         }
         this.ukuranLayar = ukuranLayar.trim();
     }

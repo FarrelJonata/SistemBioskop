@@ -5,7 +5,7 @@ public class FilmVIP extends Film implements DapatDipesan {
     private String jenisKursi;
 
     public FilmVIP(String judul, String genre, int durasiMenit,
-                   double hargaDasar, double biayaLayanan, String jenisKursi) {
+                   double hargaDasar, double biayaLayanan, String jenisKursi) throws DataTidakValidException {
         super(judul, genre, durasiMenit, hargaDasar);
         this.setBiayaLayanan(biayaLayanan);
         this.setJenisKursi(jenisKursi);
@@ -14,16 +14,16 @@ public class FilmVIP extends Film implements DapatDipesan {
     public double getBiayaLayanan() { return biayaLayanan; }
     public String getJenisKursi() { return jenisKursi; }
 
-    public void setBiayaLayanan(double biayaLayanan) {
+    public void setBiayaLayanan(double biayaLayanan) throws DataTidakValidException {
         if (biayaLayanan < 0) {
-            throw new IllegalArgumentException("Biaya layanan tidak boleh negatif.");
+            throw new DataTidakValidException("Biaya layanan tidak boleh negatif.");
         }
         this.biayaLayanan = biayaLayanan;
     }
 
-    public void setJenisKursi(String jenisKursi) {
+    public void setJenisKursi(String jenisKursi) throws DataTidakValidException {
         if (jenisKursi == null || jenisKursi.trim().isEmpty()) {
-            throw new IllegalArgumentException("Jenis kursi tidak boleh kosong.");
+            throw new DataTidakValidException("Jenis kursi tidak boleh kosong.");
         }
         this.jenisKursi = jenisKursi.trim();
     }

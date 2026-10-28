@@ -4,16 +4,16 @@ public class Film3D extends Film implements DapatDipesan, DapatDinilai {
     private double biayaKacamata;
 
     public Film3D(String judul, String genre, int durasiMenit,
-                  double hargaDasar, double biayaKacamata) {
+                  double hargaDasar, double biayaKacamata) throws DataTidakValidException {
         super(judul, genre, durasiMenit, hargaDasar);
         this.setBiayaKacamata(biayaKacamata);
     }
 
     public double getBiayaKacamata() { return biayaKacamata; }
 
-    public void setBiayaKacamata(double biayaKacamata) {
+    public void setBiayaKacamata(double biayaKacamata) throws DataTidakValidException {
         if (biayaKacamata < 0) {
-            throw new IllegalArgumentException("Biaya kacamata tidak boleh negatif.");
+            throw new DataTidakValidException("Biaya kacamata tidak boleh negatif.");
         }
         this.biayaKacamata = biayaKacamata;
     }
