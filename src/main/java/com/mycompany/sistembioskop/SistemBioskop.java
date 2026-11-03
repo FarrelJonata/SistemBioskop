@@ -1,41 +1,42 @@
 package com.mycompany.sistembioskop;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.InputMismatchException;
 import java.util.Locale;
 import java.util.Scanner;
 
 public class SistemBioskop {
     private static Scanner input = new Scanner(System.in).useLocale(Locale.US);
-    private static ArrayList<Film> daftar = new ArrayList<>();
-    private static HashMap<String, String> dataMember = new HashMap<>();
-
-    private static int totalTiketTerjual = 0;
-    private static double totalPendapatan = 0;
+    private static Bioskop bioskop;
 
     public static void main(String[] args) {
-        isiDataAwal();
+        try {
+            bioskop = new Bioskop("CineTix Lampung");
+            isiDataAwal();
+        } catch (DataTidakValidException e) {
+            System.out.println("[ERROR] Gagal menyiapkan bioskop: " + e.getMessage());
+            return;
+        }
+        bioskop.bukaBioskop();
+
         int pilihan = 0;
 
         do {
             try {
                 tampilkanMenu();
-                pilihan = bacaInt("Pilih menu [1-8]: ");
+                pilihan = bacaInt("Pilih menu [1-9]: ");
 
                 switch (pilihan) {
                     case 1:
                         tambahFilm();
                         break;
                     case 2:
-                        tampilkanSemua();
+                        bioskop.lihatSemuaFilm();
                         break;
                     case 3:
                         menuPencarian();
                         break;
                     case 4:
-                        beliTiket();
+                        transaksiTiket();
                         break;
                     case 5:
                         simulasiPemutaran();
@@ -47,10 +48,13 @@ public class SistemBioskop {
                         kelolaMember();
                         break;
                     case 8:
+                        bioskop.bukaBioskop();
+                        break;
+                    case 9:
                         System.out.println("\nTerima kasih telah menggunakan Sistem Bioskop!");
                         break;
                     default:
-                        throw new DataTidakValidException("Pilihan menu tidak valid, pilih angka 1 - 8.");
+                        throw new DataTidakValidException("Pilihan menu tidak valid, pilih angka 1 - 9.");
                 }
             } catch (InputMismatchException e) {
                 System.out.println("\n[ERROR] Input harus berupa angka! Silakan coba lagi.");
@@ -63,28 +67,29 @@ public class SistemBioskop {
             } finally {
                 System.out.println("[FINALLY] Satu proses menu selesai dijalankan.");
             }
-        } while (pilihan != 8);
+        } while (pilihan != 9);
 
         input.close();
     }
 
     static void tampilkanMenu() {
         System.out.println("\n==========================================");
-        System.out.println("       SISTEM MANAJEMEN BIOSKOP");
+        System.out.println("   " + bioskop.getNama().toUpperCase() + " - MENU UTAMA");
         System.out.println("==========================================");
         System.out.println(" 1. Tambah Film Baru");
         System.out.println(" 2. Tampilkan Daftar Film");
         System.out.println(" 3. Cari Film");
-        System.out.println(" 4. Beli Tiket");
+        System.out.println(" 4. Transaksi Tiket Member");
         System.out.println(" 5. Simulasi Pemutaran Film");
         System.out.println(" 6. Layanan Film (Kursi dan Rating)");
         System.out.println(" 7. Kelola Member");
-        System.out.println(" 8. Keluar");
+        System.out.println(" 8. Info Bioskop dan Studio");
+        System.out.println(" 9. Keluar");
         System.out.println("------------------------------------------");
-        System.out.println(" Total film     : " + daftar.size());
-        System.out.println(" Total member   : " + dataMember.size());
-        System.out.println(" Tiket terjual  : " + totalTiketTerjual);
-        System.out.println(" Pendapatan     : " + Film.formatRupiah(totalPendapatan));
+        System.out.println(" Total film     : " + bioskop.getJumlahFilm());
+        System.out.println(" Total member   : " + bioskop.getJumlahMember());
+        System.out.println(" Tiket terjual  : " + TransaksiTiket.getTotalTiketTerjual());
+        System.out.println(" Pendapatan     : " + Film.formatRupiah(TransaksiTiket.getTotalPendapatan()));
         System.out.println("==========================================");
     }
 
@@ -122,37 +127,8 @@ public class SistemBioskop {
             String kursi = bacaTeks("Jenis kursi (Recliner/Sofa): ");
             baru = new FilmVIP(judul, genre, durasi, harga, layanan, kursi);
         }
-        daftar.add(baru);
+        bioskop.tambahFilm(baru);
         System.out.println("\n[OK] Film \"" + baru.getJudul() + "\" berhasil ditambahkan.");
-    }
-
-    static void tampilkanSemua() {
-        if (daftar.isEmpty()) {
-            System.out.println("\nBelum ada film terdaftar.");
-            return;
-        }
-        cetakHeader();
-        for (int i = 0; i < daftar.size(); i++) {
-            System.out.printf("%-3d| ", i + 1);
-            daftar.get(i).tampilkanInfo();
-        }
-        cetakGaris();
-        System.out.println("Total: " + daftar.size() + " film");
-    }
-
-    static void cetakHeader() {
-        System.out.println();
-        cetakGaris();
-        System.out.printf("%-3s| %-10s | %-26s | %-14s | %-8s | %-11s | %s%n",
-                "No", "Jenis", "Judul", "Genre", "Durasi", "Harga Tiket", "Detail");
-        cetakGaris();
-    }
-
-    static void cetakGaris() {
-        for (int i = 0; i < 112; i++) {
-            System.out.print("-");
-        }
-        System.out.println();
     }
 
     static void menuPencarian() throws DataTidakValidException, DataTidakDitemukanException {
@@ -163,67 +139,29 @@ public class SistemBioskop {
 
         if (mode == 1) {
             String kata = bacaTeks("Kata kunci judul: ");
-            cariFilm(kata);
+            bioskop.cariFilm(kata);
         } else if (mode == 2) {
             String genre = bacaTeks("Genre: ");
             int maks = bacaInt("Durasi maksimal (menit): ");
-            cariFilm(genre, maks);
+            bioskop.cariFilm(genre, maks);
         } else {
             throw new DataTidakValidException("Pilihan pencarian harus 1 atau 2.");
         }
     }
 
-    static void cariFilm(String kataKunci) throws DataTidakDitemukanException {
-        boolean ketemu = false;
-        for (int i = 0; i < daftar.size(); i++) {
-            Film film = daftar.get(i);
-            if (film.getJudul().toLowerCase().contains(kataKunci.toLowerCase())) {
-                if (!ketemu) cetakHeader();
-                System.out.printf("%-3d| ", i + 1);
-                film.tampilkanInfo();
-                ketemu = true;
-            }
-        }
-        if (!ketemu) {
-            throw new DataTidakDitemukanException("Film dengan judul \"" + kataKunci + "\" tidak ada.");
-        }
-        cetakGaris();
-    }
-
-    static void cariFilm(String genre, int durasiMaks) throws DataTidakDitemukanException {
-        boolean ketemu = false;
-        for (int i = 0; i < daftar.size(); i++) {
-            Film film = daftar.get(i);
-            if (film.getGenre().equalsIgnoreCase(genre.trim())
-                    && film.getDurasiMenit() <= durasiMaks) {
-                if (!ketemu) cetakHeader();
-                System.out.printf("%-3d| ", i + 1);
-                film.tampilkanInfo();
-                ketemu = true;
-            }
-        }
-        if (!ketemu) {
-            throw new DataTidakDitemukanException("Tidak ada film genre " + genre
-                    + " dengan durasi maksimal " + durasiMaks + " menit.");
-        }
-        cetakGaris();
-    }
-
-    static Film ambilFilm(int nomor) throws DataTidakDitemukanException {
-        if (nomor < 1 || nomor > daftar.size()) {
-            throw new DataTidakDitemukanException("Film nomor " + nomor + " tidak ada di daftar.");
-        }
-        return daftar.get(nomor - 1);
-    }
-
-    static void beliTiket() throws DataTidakValidException, DataTidakDitemukanException {
-        if (daftar.isEmpty()) {
+    static void transaksiTiket() throws DataTidakValidException, DataTidakDitemukanException {
+        if (bioskop.getJumlahFilm() == 0) {
             System.out.println("\nBelum ada film terdaftar.");
             return;
         }
-        tampilkanSemua();
+        System.out.println("\n--- Transaksi Tiket Member ---");
+        String idMember = bacaTeks("Masukkan ID member: ");
+        Member pembeli = bioskop.getMember(idMember);
+        System.out.println("Selamat datang, " + pembeli.getNama() + " (poin: " + pembeli.getPoin() + ")");
+
+        bioskop.lihatSemuaFilm();
         int nomor = bacaInt("\nPilih nomor film: ");
-        Film dipilih = ambilFilm(nomor);
+        Film dipilih = bioskop.getFilm(nomor);
 
         int banyak = bacaInt("Jumlah tiket (1-10): ");
         if (banyak < 1 || banyak > 10) {
@@ -233,56 +171,23 @@ public class SistemBioskop {
         String kodePromo = bacaTeks("Kode promo (kosongkan jika tidak ada): ");
 
         if (kodePromo.trim().isEmpty()) {
-            prosesTransaksi(dipilih, banyak);
+            TransaksiTiket.prosesBeli(pembeli, dipilih, banyak);
         } else {
-            prosesTransaksi(dipilih, banyak, kodePromo);
+            TransaksiTiket.prosesBeli(pembeli, dipilih, banyak, kodePromo);
         }
     }
 
-    static void prosesTransaksi(Film film, int banyak) {
-        cetakStruk(film, banyak, 0);
-    }
-
-    static void prosesTransaksi(Film film, int banyak, String kodePromo) {
-        double diskon = 0;
-        if (kodePromo.trim().equalsIgnoreCase("HEMAT10")) {
-            diskon = film.hitungHargaTiket(banyak) * 0.10;
-            System.out.println("\nKode promo HEMAT10 diterapkan (diskon 10%).");
-        } else {
-            System.out.println("\nKode promo tidak valid, tidak ada diskon.");
-        }
-        cetakStruk(film, banyak, diskon);
-    }
-
-    static void cetakStruk(Film film, int banyak, double diskon) {
-        double subtotal = film.hitungHargaTiket(banyak);
-        double total = subtotal - diskon;
-
-        totalTiketTerjual += banyak;
-        totalPendapatan += total;
-
-        System.out.println("\n========== STRUK PEMBELIAN ==========");
-        System.out.printf("Film         : %s%n", film.getJudul());
-        System.out.printf("Jenis        : %s%n", film.getJenis());
-        System.out.printf("Fasilitas    : %s%n", film.getFasilitas());
-        System.out.printf("Harga/tiket  : %s%n", Film.formatRupiah(film.hitungHargaTiket()));
-        System.out.printf("Jumlah tiket : %d%n", banyak);
-        System.out.printf("Subtotal     : %s%n", Film.formatRupiah(subtotal));
-        System.out.printf("Diskon       : %s%n", Film.formatRupiah(diskon));
-        System.out.printf("TOTAL BAYAR  : %s%n", Film.formatRupiah(total));
-        System.out.println("=====================================");
-    }
-
-    static void simulasiPemutaran() throws DataTidakValidException {
-        if (daftar.isEmpty()) {
+    static void simulasiPemutaran() throws DataTidakValidException, DataTidakDitemukanException {
+        if (bioskop.getJumlahFilm() == 0) {
             System.out.println("\nBelum ada film terdaftar.");
             return;
         }
         System.out.println("\n--- Simulasi Pemutaran Film (Abstract Method dan Interface) ---");
         System.out.println("Semua film disimpan di ArrayList bertipe Film, perilakunya ditentukan saat runtime.\n");
-        for (int i = 0; i < daftar.size(); i++) {
-            simulasiPutar(daftar.get(i));
-            cekLayanan(daftar.get(i));
+        for (int i = 1; i <= bioskop.getJumlahFilm(); i++) {
+            Film film = bioskop.getFilm(i);
+            simulasiPutar(film);
+            cekLayanan(film);
             System.out.println("-------------------------------------------");
         }
     }
@@ -327,13 +232,13 @@ public class SistemBioskop {
     }
 
     static void layananFilm() throws DataTidakValidException, DataTidakDitemukanException {
-        if (daftar.isEmpty()) {
+        if (bioskop.getJumlahFilm() == 0) {
             System.out.println("\nBelum ada film terdaftar.");
             return;
         }
-        tampilkanSemua();
+        bioskop.lihatSemuaFilm();
         int nomor = bacaInt("\nPilih nomor film: ");
-        Film film = ambilFilm(nomor);
+        Film film = bioskop.getFilm(nomor);
 
         System.out.println("\nLayanan untuk: " + film.getJudul() + " [" + film.getJenis() + "]");
         System.out.println(" 1. Pesan kursi");
@@ -367,70 +272,34 @@ public class SistemBioskop {
 
         switch (opsi) {
             case 1:
-                tambahMember();
+                String id = bacaTeks("ID member (contoh MBR004): ");
+                String nama = bacaTeks("Nama member            : ");
+                Member baru = new Member(id, nama);
+                bioskop.tambahMember(baru);
+                System.out.println("\n[OK] Member " + baru.getId() + " (" + baru.getNama() + ") berhasil ditambahkan.");
                 break;
             case 2:
-                cariMember();
+                String cariId = bacaTeks("Masukkan ID member: ");
+                bioskop.cariMember(cariId);
                 break;
             case 3:
-                tampilkanMember();
+                bioskop.lihatSemuaMember();
                 break;
             default:
                 throw new DataTidakValidException("Pilihan menu member harus antara 1 - 3.");
         }
     }
 
-    static void tambahMember() throws DataTidakValidException {
-        String id = bacaTeks("ID member (contoh MBR004): ").trim().toUpperCase();
-        String nama = bacaTeks("Nama member            : ").trim();
+    static void isiDataAwal() throws DataTidakValidException {
+        bioskop.tambahFilm(new FilmReguler("Langit Terakhir", "Drama", 110, 35000, 2));
+        bioskop.tambahFilm(new FilmReguler("Tawa di Ujung Senja", "Komedi", 95, 35000, 4));
+        bioskop.tambahFilm(new Film3D("Petualangan Rimba Biru", "Animasi", 100, 40000, 5000));
+        bioskop.tambahFilm(new FilmIMAX("Badai Samudra", "Aksi", 150, 50000, 25000, "26 x 19 m"));
+        bioskop.tambahFilm(new FilmVIP("Malam Premiere", "Romantis", 120, 50000, 30000, "Recliner"));
 
-        if (id.isEmpty() || nama.isEmpty()) {
-            throw new DataTidakValidException("ID dan nama member tidak boleh kosong.");
-        }
-        if (dataMember.containsKey(id)) {
-            throw new DataTidakValidException("ID member " + id + " sudah terdaftar.");
-        }
-        dataMember.put(id, nama);
-        System.out.println("\n[OK] Member " + id + " (" + nama + ") berhasil ditambahkan.");
-    }
-
-    static void cariMember() throws DataTidakDitemukanException {
-        String id = bacaTeks("Masukkan ID member: ").trim().toUpperCase();
-
-        if (!dataMember.containsKey(id)) {
-            throw new DataTidakDitemukanException("Member dengan ID " + id + " tidak terdaftar.");
-        }
-        System.out.println("\nMember ditemukan -> ID: " + id + " | Nama: " + dataMember.get(id));
-    }
-
-    static void tampilkanMember() {
-        if (dataMember.isEmpty()) {
-            System.out.println("\nBelum ada member terdaftar.");
-            return;
-        }
-        System.out.println("\n--- Daftar Member (Total: " + dataMember.size() + ") ---");
-        ArrayList<String> urutanId = new ArrayList<>(dataMember.keySet());
-        Collections.sort(urutanId);
-        int nomor = 1;
-        for (String id : urutanId) {
-            System.out.printf("%-3d| %-8s | %s%n", nomor++, id, dataMember.get(id));
-        }
-    }
-
-    static void isiDataAwal() {
-        try {
-            daftar.add(new FilmReguler("Langit Terakhir", "Drama", 110, 35000, 2));
-            daftar.add(new FilmReguler("Tawa di Ujung Senja", "Komedi", 95, 35000, 4));
-            daftar.add(new Film3D("Petualangan Rimba Biru", "Animasi", 100, 40000, 5000));
-            daftar.add(new FilmIMAX("Badai Samudra", "Aksi", 150, 50000, 25000, "26 x 19 m"));
-            daftar.add(new FilmVIP("Malam Premiere", "Romantis", 120, 50000, 30000, "Recliner"));
-        } catch (DataTidakValidException e) {
-            System.out.println("[ERROR] Gagal memuat data film awal: " + e.getMessage());
-        }
-
-        dataMember.put("MBR001", "Budi Santoso");
-        dataMember.put("MBR002", "Siti Aminah");
-        dataMember.put("MBR003", "Rizky Pratama");
+        bioskop.tambahMember(new Member("MBR001", "Budi Santoso"));
+        bioskop.tambahMember(new Member("MBR002", "Siti Aminah"));
+        bioskop.tambahMember(new Member("MBR003", "Rizky Pratama"));
     }
 
     static String bacaTeks(String prompt) {
