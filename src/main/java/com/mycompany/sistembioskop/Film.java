@@ -1,6 +1,9 @@
 package com.mycompany.sistembioskop;
 
-public abstract class Film {
+import java.io.Serializable;
+
+public abstract class Film implements Serializable {
+    private static final long serialVersionUID = 1L;
 
     private String judul;
     private String genre;

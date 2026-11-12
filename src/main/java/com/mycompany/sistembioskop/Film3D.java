@@ -1,6 +1,8 @@
 package com.mycompany.sistembioskop;
 
 public class Film3D extends Film implements DapatDipesan, DapatDinilai {
+    private static final long serialVersionUID = 1L;
+
     private double biayaKacamata;
 
     public Film3D(String judul, String genre, int durasiMenit,

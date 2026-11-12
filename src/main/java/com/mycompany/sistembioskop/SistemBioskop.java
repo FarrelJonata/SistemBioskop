@@ -11,7 +11,9 @@ public class SistemBioskop {
     public static void main(String[] args) {
         try {
             bioskop = new Bioskop("CineTix Lampung");
-            isiDataAwal();
+            if (!bioskop.muatDataDariFile()) {
+                isiDataAwal();
+            }
         } catch (DataTidakValidException e) {
             System.out.println("[ERROR] Gagal menyiapkan bioskop: " + e.getMessage());
             return;
@@ -23,7 +25,7 @@ public class SistemBioskop {
         do {
             try {
                 tampilkanMenu();
-                pilihan = bacaInt("Pilih menu [1-9]: ");
+                pilihan = bacaInt("Pilih menu [1-10]: ");
 
                 switch (pilihan) {
                     case 1:
@@ -51,10 +53,14 @@ public class SistemBioskop {
                         bioskop.bukaBioskop();
                         break;
                     case 9:
+                        kelolaFile();
+                        break;
+                    case 10:
+                        bioskop.simpanDataKeFile();
                         System.out.println("\nTerima kasih telah menggunakan Sistem Bioskop!");
                         break;
                     default:
-                        throw new DataTidakValidException("Pilihan menu tidak valid, pilih angka 1 - 9.");
+                        throw new DataTidakValidException("Pilihan menu tidak valid, pilih angka 1 - 10.");
                 }
             } catch (InputMismatchException e) {
                 System.out.println("\n[ERROR] Input harus berupa angka! Silakan coba lagi.");
@@ -67,7 +73,7 @@ public class SistemBioskop {
             } finally {
                 System.out.println("[FINALLY] Satu proses menu selesai dijalankan.");
             }
-        } while (pilihan != 9);
+        } while (pilihan != 10);
 
         input.close();
     }
@@ -84,7 +90,8 @@ public class SistemBioskop {
         System.out.println(" 6. Layanan Film (Kursi dan Rating)");
         System.out.println(" 7. Kelola Member");
         System.out.println(" 8. Info Bioskop dan Studio");
-        System.out.println(" 9. Keluar");
+        System.out.println(" 9. Kelola File dan Log");
+        System.out.println(" 10. Keluar (simpan otomatis)");
         System.out.println("------------------------------------------");
         System.out.println(" Total film     : " + bioskop.getJumlahFilm());
         System.out.println(" Total member   : " + bioskop.getJumlahMember());
@@ -287,6 +294,28 @@ public class SistemBioskop {
                 break;
             default:
                 throw new DataTidakValidException("Pilihan menu member harus antara 1 - 3.");
+        }
+    }
+
+    static void kelolaFile() throws DataTidakValidException {
+        System.out.println("\n--- Kelola File dan Log ---");
+        System.out.println(" 1. Simpan data ke file (Serialization)");
+        System.out.println(" 2. Muat data dari file (Deserialization)");
+        System.out.println(" 3. Lihat log transaksi (file teks)");
+        int opsi = bacaInt("Pilih [1-3]: ");
+
+        switch (opsi) {
+            case 1:
+                bioskop.simpanDataKeFile();
+                break;
+            case 2:
+                bioskop.muatDataDariFile();
+                break;
+            case 3:
+                bioskop.bacaLogTransaksi();
+                break;
+            default:
+                throw new DataTidakValidException("Pilihan menu file harus antara 1 - 3.");
         }
     }
 

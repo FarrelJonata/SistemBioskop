@@ -1,6 +1,8 @@
 package com.mycompany.sistembioskop;
 
 public class FilmVIP extends Film implements DapatDipesan {
+    private static final long serialVersionUID = 1L;
+
     private double biayaLayanan;
     private String jenisKursi;
 

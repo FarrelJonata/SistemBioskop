@@ -1,11 +1,34 @@
 package com.mycompany.sistembioskop;
 
+import java.io.FileWriter;
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 public class TransaksiTiket {
+    public static final String FILE_LOG = "log_transaksi.txt";
+
     private static int totalTiketTerjual = 0;
     private static double totalPendapatan = 0;
 
     public static int getTotalTiketTerjual() { return totalTiketTerjual; }
     public static double getTotalPendapatan() { return totalPendapatan; }
+
+    public static void setStatistik(int tiket, double pendapatan) {
+        totalTiketTerjual = tiket;
+        totalPendapatan = pendapatan;
+    }
+
+    public static void tulisLog(String pesan) {
+        try {
+            FileWriter pipaTulis = new FileWriter(FILE_LOG, true);
+            pipaTulis.write(pesan + System.lineSeparator());
+            pipaTulis.close();
+            System.out.println("[FILE] Transaksi dicatat ke " + FILE_LOG);
+        } catch (IOException e) {
+            System.out.println("[FILE] Gagal menulis log: " + e.getMessage());
+        }
+    }
 
     public static void prosesBeli(Member pembeli, Film film, int banyak) {
         cetakStruk(pembeli, film, banyak, 0);
@@ -44,5 +67,10 @@ public class TransaksiTiket {
         System.out.printf("Poin didapat : +%d (total poin %d)%n", poinDidapat, pembeli.getPoin());
         System.out.println("=====================================");
         System.out.println("[STATUS] Transaksi berhasil diproses.");
+
+        String waktu = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        tulisLog("[" + waktu + "] " + pembeli.getId() + " (" + pembeli.getNama() + ") membeli "
+                + banyak + " tiket " + film.getJenis() + " \"" + film.getJudul()
+                + "\" | Total " + Film.formatRupiah(total));
     }
 }

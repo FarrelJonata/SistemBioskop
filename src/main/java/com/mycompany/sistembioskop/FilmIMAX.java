@@ -1,6 +1,8 @@
 package com.mycompany.sistembioskop;
 
 public class FilmIMAX extends Film implements DapatDipesan, DapatDinilai {
+    private static final long serialVersionUID = 1L;
+
     private double biayaPremium;
     private String ukuranLayar;
 

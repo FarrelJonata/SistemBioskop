@@ -1,10 +1,20 @@
 package com.mycompany.sistembioskop;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Scanner;
 
 public class Bioskop {
+    public static final String FILE_DATA = "data_bioskop.dat";
+
     private String nama;
     private Studio studioReguler;
     private Studio studioPremium;
@@ -132,6 +142,77 @@ public class Bioskop {
         for (String id : urutanId) {
             Member m = dataMember.get(id);
             System.out.printf("%-3d| %-8s | %-18s | %d poin%n", nomor++, m.getId(), m.getNama(), m.getPoin());
+        }
+    }
+
+    public void simpanDataKeFile() {
+        try {
+            FileOutputStream fileKeluar = new FileOutputStream(FILE_DATA);
+            ObjectOutputStream mesinPembeku = new ObjectOutputStream(fileKeluar);
+
+            mesinPembeku.writeObject(daftarFilm);
+            mesinPembeku.writeObject(dataMember);
+            mesinPembeku.writeInt(TransaksiTiket.getTotalTiketTerjual());
+            mesinPembeku.writeDouble(TransaksiTiket.getTotalPendapatan());
+
+            mesinPembeku.close();
+            System.out.println("[FILE] Data berhasil disimpan ke " + FILE_DATA
+                    + " (" + daftarFilm.size() + " film, " + dataMember.size() + " member).");
+        } catch (IOException e) {
+            System.out.println("[FILE] Gagal menyimpan data: " + e.getMessage());
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    public boolean muatDataDariFile() {
+        File fileData = new File(FILE_DATA);
+        if (!fileData.exists()) {
+            System.out.println("[FILE] " + FILE_DATA + " belum ada, tidak ada data yang dimuat.");
+            return false;
+        }
+
+        try {
+            FileInputStream fileMasuk = new FileInputStream(fileData);
+            ObjectInputStream mesinPembangkit = new ObjectInputStream(fileMasuk);
+
+            ArrayList<Film> filmDimuat = (ArrayList<Film>) mesinPembangkit.readObject();
+            HashMap<String, Member> memberDimuat = (HashMap<String, Member>) mesinPembangkit.readObject();
+            int tiketDimuat = mesinPembangkit.readInt();
+            double pendapatanDimuat = mesinPembangkit.readDouble();
+
+            mesinPembangkit.close();
+
+            daftarFilm = filmDimuat;
+            dataMember = memberDimuat;
+            TransaksiTiket.setStatistik(tiketDimuat, pendapatanDimuat);
+            System.out.println("[FILE] Data berhasil dimuat dari " + FILE_DATA
+                    + " (" + daftarFilm.size() + " film, " + dataMember.size() + " member).");
+            return true;
+        } catch (IOException | ClassNotFoundException e) {
+            System.out.println("[FILE] Gagal memuat data: " + e.getMessage());
+            return false;
+        }
+    }
+
+    public void bacaLogTransaksi() {
+        File fileLog = new File(TransaksiTiket.FILE_LOG);
+        if (!fileLog.exists()) {
+            System.out.println("\n[FILE] Belum ada log transaksi (" + TransaksiTiket.FILE_LOG + " belum dibuat).");
+            return;
+        }
+
+        try {
+            Scanner mesinBaca = new Scanner(fileLog);
+            System.out.println("\n--- Isi " + TransaksiTiket.FILE_LOG + " ---");
+            int jumlahCatatan = 0;
+            while (mesinBaca.hasNextLine()) {
+                System.out.println(mesinBaca.nextLine());
+                jumlahCatatan++;
+            }
+            mesinBaca.close();
+            System.out.println("--- Total " + jumlahCatatan + " catatan ---");
+        } catch (FileNotFoundException e) {
+            System.out.println("[FILE] Gagal: file log tidak ditemukan.");
         }
     }
 

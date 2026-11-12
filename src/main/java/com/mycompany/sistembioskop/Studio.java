@@ -1,6 +1,10 @@
 package com.mycompany.sistembioskop;
 
-public class Studio {
+import java.io.Serializable;
+
+public class Studio implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private String nama;
     private int kapasitasKursi;
 

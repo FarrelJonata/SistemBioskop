@@ -1,6 +1,8 @@
 package com.mycompany.sistembioskop;
 
 public class FilmReguler extends Film implements DapatDinilai {
+    private static final long serialVersionUID = 1L;
+
     private int nomorStudio;
 
     public FilmReguler(String judul, String genre, int durasiMenit,
